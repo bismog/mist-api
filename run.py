@@ -2,13 +2,12 @@ import argparse
 import requests
 import json
 import os
-
-from datetime import datetime, timedelta
+import datetime
 
 class API():
     def __init__(self, server=None):
         self.server = server
-        self.token_file = 'token.json'
+        self.token_file = 'data/token.json'
         self.token = self.load_token()
         if not self.token or self.is_token_expired(self.token):
             self.token = self.get_token()
@@ -18,9 +17,10 @@ class API():
     def is_token_expired(self, token):
         created_at = token.get('created_at')
         ttl = token.get('ttl')
-        created_at = datetime.strptime(created_at, "%Y-%m-%d %H:%M:%S.%f")
-        expiration_time = created_at + timedelta(seconds=ttl-5)
-        current_time = datetime.utcnow()
+        created_at = datetime.datetime.strptime(created_at, "%Y-%m-%d %H:%M:%S.%f")
+        created_at = created_at.replace(tzinfo=datetime.timezone.utc)
+        expiration_time = created_at + datetime.timedelta(seconds=ttl-5)
+        current_time = datetime.datetime.now(datetime.timezone.utc)
         return current_time > expiration_time
 
     def load_token(self):
@@ -207,6 +207,25 @@ class API():
         response = requests.request("GET", url, headers=headers, data=payload)
         print(response.text)
 
+    def do_machine_action(self, platform_id, cloud_id, machine_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
+        with open(json_file, 'r') as ff:
+            data = json.load(ff)
+        payload = json.dumps(data)
+        # payload = json.dumps({
+        #    "action": "start"
+        # })
+        headers = {
+           'Authorization': self.token_id,
+           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+           'Content-Type': 'application/json',
+           'Accept': '*/*',
+           'Host': self.server,
+           'Connection': 'keep-alive',
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+
 def parse_argument():
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--server', action='store', dest='server')
@@ -253,6 +272,12 @@ def parse_argument():
     parser_get_network.add_argument('cloud_id')
     parser_get_network.add_argument('network_id')
 
+    parser_get_network = subparsers.add_parser('machine-action')
+    parser_get_network.add_argument('platform_id')
+    parser_get_network.add_argument('cloud_id')
+    parser_get_network.add_argument('machine_id')
+    parser_get_network.add_argument('json_file')
+
     args = parser.parse_args()
     return args
 
@@ -279,6 +304,10 @@ def run_command(args, method):
             elif args.subcommand == 'get-network':
                 network_id = args.network_id
                 return method(platform_id, cloud_id, network_id)
+            elif args.subcommand == 'machine-action':
+                machine_id = args.machine_id
+                json_file = args.json_file
+                return method(platform_id, cloud_id, machine_id, json_file)
     return
 
 def main():
