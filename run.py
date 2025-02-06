@@ -69,6 +69,17 @@ class API():
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
 
+    def do_delete_platform(self, platform_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}"
+        headers = {
+           'Authorization': self.token_id,
+           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+           'Accept': '*/*',
+           'Host': self.server,
+           'Connection': 'keep-alive',
+        }
+        response = requests.request("DELETE", url, headers=headers)
+        print(response.text)
 
     def do_list_platforms(self):
         url = f"http://{self.server}/api/v1/platforms"
@@ -82,139 +93,67 @@ class API():
         response = requests.request("GET", url, headers=headers)
         print(response.text)
 
+    def do_get(self, url):
+        payload = json.dumps({"cached": False})
+        headers = {
+           'Authorization': self.token_id,
+           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+           'Accept': '*/*',
+           'Host': self.server,
+           'Connection': 'keep-alive',
+        }
+        response = requests.request("GET", url, headers=headers, data=payload)
+        print(response.text)
+
     def do_list_clouds(self, platform_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds"
-        payload = json.dumps({"cached": False})
-        headers = {
-           'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("GET", url, headers=headers)
-        print(response.text)
+        self.do_get(url)
     
-    def do_list_machines(self, platform_id, cloud_id):
-        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines"
-        payload = json.dumps({"cached": False})
-        headers = {
-           'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-           'Content-Type': 'application/json',
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("GET", url, headers=headers, data=payload)
-        print(response.text)
-
-    def do_get_machine(self, platform_id, cloud_id, machine_id):
-        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
-        payload = json.dumps({"cached": False})
-        headers = {
-           'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-           'Content-Type': 'application/json',
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("GET", url, headers=headers, data=payload)
-        print(response.text)
-
     def do_list_volume_types(self, platform_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/volume_types"
-        payload = json.dumps({"cached": False})
-        headers = {
-           'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-           'Content-Type': 'application/json',
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("GET", url, headers=headers, data=payload)
-        print(response.text)
+        self.do_get(url)
 
     def do_list_images(self, platform_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/images"
-        payload = json.dumps({"cached": False})
-        headers = {
-           'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-           'Content-Type': 'application/json',
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("GET", url, headers=headers, data=payload)
-        print(response.text)
+        self.do_get(url)
+
+    def do_list_sizes(self, platform_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/sizes"
+        self.do_get(url)
+
+    def do_list_pf_networks(self, platform_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/networks"
+        self.do_get(url)
+
+    def do_list_machines(self, platform_id, cloud_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines"
+        self.do_get(url)
+
+    def do_get_machine(self, platform_id, cloud_id, machine_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
+        self.do_get(url)
 
     def do_list_volumes(self, platform_id, cloud_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/volumes"
-        payload = json.dumps({"cached": False})
-        headers = {
-           'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-           'Content-Type': 'application/json',
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("GET", url, headers=headers, data=payload)
-        print(response.text)
+        self.do_get(url)
 
     def do_get_volume(self, platform_id, cloud_id, volume_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/volumes/{volume_id}"
-        payload = json.dumps({"cached": False})
-        headers = {
-           'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-           'Content-Type': 'application/json',
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("GET", url, headers=headers, data=payload)
-        print(response.text)
+        self.do_get(url)
 
     def do_list_networks(self, platform_id, cloud_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/networks"
-        payload = json.dumps({"cached": False})
-        headers = {
-           'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-           'Content-Type': 'application/json',
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("GET", url, headers=headers, data=payload)
-        print(response.text)
+        self.do_get(url)
 
     def do_get_network(self, platform_id, cloud_id, network_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/networks/{network_id}"
-        payload = json.dumps({"cached": False})
-        headers = {
-           'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
-           'Content-Type': 'application/json',
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("GET", url, headers=headers, data=payload)
-        print(response.text)
+        self.do_get(url)
 
     def do_machine_action(self, platform_id, cloud_id, machine_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
         with open(json_file, 'r') as ff:
             data = json.load(ff)
         payload = json.dumps(data)
-        # payload = json.dumps({
-        #    "action": "start"
-        # })
         headers = {
            'Authorization': self.token_id,
            'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
@@ -226,6 +165,60 @@ class API():
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
 
+    def do_sync(self, url, json_file):
+        with open(json_file, 'r') as ff:
+            data = json.load(ff)
+        payload = json.dumps(data)
+        headers = {
+           'Authorization': self.token_id,
+           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+           'Content-Type': 'application/json',
+           'Accept': '*/*',
+           'Host': self.server,
+           'Connection': 'keep-alive',
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+
+    def do_sync_volume_type(self, platform_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/volume_type/sync"
+        self.do_sync(url, json_file)
+
+    def do_sync_cloud(self, platform_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/cloud/sync"
+        self.do_sync(url, json_file)
+
+    def do_sync_cluster(self, platform_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/cluster/sync"
+        self.do_sync(url, json_file)
+
+    def do_sync_image(self, platform_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/image/sync"
+        self.do_sync(url, json_file)
+        
+    def do_sync_host(self, platform_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/host/sync"
+        self.do_sync(url, json_file)
+        
+    def do_sync_machine(self, platform_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/machine/sync"
+        self.do_sync(url, json_file)
+        
+    def do_sync_network(self, platform_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/network/sync"
+        self.do_sync(url, json_file)
+        
+    def do_sync_volume(self, platform_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/volume/sync"
+        self.do_sync(url, json_file)
+        
+
+
+
+
+
+
+
 def parse_argument():
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--server', action='store', dest='server')
@@ -236,8 +229,17 @@ def parse_argument():
     parser_add_platform = subparsers.add_parser('add-platform')
     parser_add_platform.add_argument('json_file')
 
+    parser_delete_platform = subparsers.add_parser('delete-platform')
+    parser_delete_platform.add_argument('platform_id')
+
     parser_list_clouds = subparsers.add_parser('list-clouds')
     parser_list_clouds.add_argument('platform_id')
+
+    parser_list_images = subparsers.add_parser('list-images')
+    parser_list_images.add_argument('platform_id')
+
+    parser_list_sizes = subparsers.add_parser('list-sizes')
+    parser_list_sizes.add_argument('platform_id')
 
     parser_list_machines = subparsers.add_parser('list-machines')
     parser_list_machines.add_argument('platform_id')
@@ -251,6 +253,9 @@ def parse_argument():
     parser_list_volume_types = subparsers.add_parser('list-volume-types')
     parser_list_volume_types.add_argument('platform_id')
 
+    parser_list_pf_networks = subparsers.add_parser('list-pf-networks')
+    parser_list_pf_networks.add_argument('platform_id')
+
     parser_list_volumes = subparsers.add_parser('list-volumes')
     parser_list_volumes.add_argument('platform_id')
     parser_list_volumes.add_argument('cloud_id')
@@ -259,9 +264,6 @@ def parse_argument():
     parser_get_volume.add_argument('platform_id')
     parser_get_volume.add_argument('cloud_id')
     parser_get_volume.add_argument('volume_id')
-
-    parser_list_images = subparsers.add_parser('list-images')
-    parser_list_images.add_argument('platform_id')
 
     parser_list_networks = subparsers.add_parser('list-networks')
     parser_list_networks.add_argument('platform_id')
@@ -278,6 +280,38 @@ def parse_argument():
     parser_get_network.add_argument('machine_id')
     parser_get_network.add_argument('json_file')
 
+    parser_sync_volume_type = subparsers.add_parser('sync-volume-type')
+    parser_sync_volume_type.add_argument('platform_id')
+    parser_sync_volume_type.add_argument('json_file')
+
+    parser_sync_cloud = subparsers.add_parser('sync-cloud')
+    parser_sync_cloud.add_argument('platform_id')
+    parser_sync_cloud.add_argument('json_file')
+
+    parser_sync_cluster = subparsers.add_parser('sync-cluster')
+    parser_sync_cluster.add_argument('platform_id')
+    parser_sync_cluster.add_argument('json_file')
+
+    parser_sync_image = subparsers.add_parser('sync-image')
+    parser_sync_image.add_argument('platform_id')
+    parser_sync_image.add_argument('json_file')
+
+    parser_sync_host = subparsers.add_parser('sync-host')
+    parser_sync_host.add_argument('platform_id')
+    parser_sync_host.add_argument('json_file')
+
+    parser_sync_machine = subparsers.add_parser('sync-machine')
+    parser_sync_machine.add_argument('platform_id')
+    parser_sync_machine.add_argument('json_file')
+
+    parser_sync_network = subparsers.add_parser('sync-network')
+    parser_sync_network.add_argument('platform_id')
+    parser_sync_network.add_argument('json_file')
+
+    parser_sync_volume = subparsers.add_parser('sync-volume')
+    parser_sync_volume.add_argument('platform_id')
+    parser_sync_volume.add_argument('json_file')
+
     args = parser.parse_args()
     return args
 
@@ -285,29 +319,23 @@ def run_command(args, method):
     if args.subcommand == 'list-platforms':
         return method()
     elif args.subcommand == 'add-platform':
-        json_file = args.json_file
-        return method(json_file)
+        return method(args.json_file)
     else:
-        platform_id = args.platform_id
-        if args.subcommand in ('list-clouds', 'list-images', 'list-volume-types'):
-            return method(platform_id)
+        if args.subcommand in ('list-clouds', 'list-images', 'list-sizes', 'list-volume-types', 'list-pf-networks', 'delete-platform'):
+            return method(args.platform_id)
+        elif args.subcommand in ('sync-volume-type', 'sync-cloud', 'sync-cluster', 'sync-image', 'sync-host', 'sync-machine', 'sync-network', 'sync-volume'):
+            return method(args.platform_id, args.json_file)
         else:
-            cloud_id = args.cloud_id
             if args.subcommand in ('list-machines', 'list-volumes', 'list-networks'):
-                return method(platform_id, cloud_id)
+                return method(args.platform_id, args.cloud_id)
             elif args.subcommand == 'get-machine':
-                machine_id = args.machine_id
-                return method(platform_id, cloud_id, machine_id)
+                return method(args.platform_id, args.cloud_id, args.machine_id)
             elif args.subcommand == 'get-volume':
-                volume_id = args.volume_id
-                return method(platform_id, cloud_id, volume_id)
+                return method(args.platform_id, args.cloud_id, args.volume_id)
             elif args.subcommand == 'get-network':
-                network_id = args.network_id
-                return method(platform_id, cloud_id, network_id)
+                return method(args.platform_id, args.cloud_id, args.network_id)
             elif args.subcommand == 'machine-action':
-                machine_id = args.machine_id
-                json_file = args.json_file
-                return method(platform_id, cloud_id, machine_id, json_file)
+                return method(args.platform_id, args.cloud_id, args.machine_id, args.json_file)
     return
 
 def main():

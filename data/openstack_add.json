@@ -1,0 +1,10 @@
+{
+    "title": "cloud117",
+    "provider": "astutecloud",
+    "username": "admin",
+    "password": "",
+    "url": "http://192.222.1.117:5000",
+    "admin_project": "admin",
+    "domain": "Default",
+    "region": "RegionOne"
+}
