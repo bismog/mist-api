@@ -3,6 +3,9 @@ import requests
 import json
 import os
 import datetime
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 class API():
     def __init__(self, server=None):
@@ -31,6 +34,7 @@ class API():
         return None
 
     def save_token(self, token):
+        os.makedirs(os.path.dirname(self.token_file), exist_ok=True)
         with open(self.token_file, 'w') as file:
             json.dump({'token': token}, file)
 
@@ -40,7 +44,6 @@ class API():
            "email": "cloud@astute-tec.com"
         })
         headers = {
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
            'Content-Type': 'application/json',
            'Accept': '*/*',
            'Host': self.server,
@@ -61,7 +64,6 @@ class API():
         url = f"http://{self.server}/api/v1/platforms"
         headers = {
            'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
            'Accept': '*/*',
            'Host': self.server,
            'Connection': 'keep-alive',
@@ -73,7 +75,6 @@ class API():
         url = f"http://{self.server}/api/v1/platforms/{platform_id}"
         headers = {
            'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
            'Accept': '*/*',
            'Host': self.server,
            'Connection': 'keep-alive',
@@ -85,7 +86,6 @@ class API():
         url = f"http://{self.server}/api/v1/platforms"
         headers = {
            'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
            'Accept': '*/*',
            'Host': self.server,
            'Connection': 'keep-alive',
@@ -97,7 +97,6 @@ class API():
         payload = json.dumps({"cached": False})
         headers = {
            'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
            'Accept': '*/*',
            'Host': self.server,
            'Connection': 'keep-alive',
@@ -156,7 +155,6 @@ class API():
         payload = json.dumps(data)
         headers = {
            'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
            'Content-Type': 'application/json',
            'Accept': '*/*',
            'Host': self.server,
@@ -165,13 +163,51 @@ class API():
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
 
+    # def do_machine_action(self, platform_id, cloud_id, machine_id, json_file):
+    #     try:
+    #         import http.client
+    #         url = f"/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
+    #         # conn = http.client.HTTPSConnection(self.server)
+    #         conn = http.client.HTTPConnection(self.server)
+    #         with open(json_file, 'r') as ff:
+    #             data = json.load(ff)
+    #         payload = json.dumps(data)
+    #         headers = {
+    #            'Authorization': self.token_id,
+    #            'Content-Type': 'application/json',
+    #            'Accept': '*/*',
+    #            'Host': self.server,
+    #            'Connection': 'keep-alive',
+    #         }
+    #         conn.request("POST", url, payload, headers)
+    #         res = conn.getresponse()
+    #         # Log response details
+    #         logging.debug(f"Response status: {res.status}")
+    #         logging.debug(f"Response reason: {res.reason}")
+    #         logging.debug(f"Response headers: {res.getheaders()}")
+
+    #         # Read and decode the response body
+    #         response_data = res.read().decode("utf-8")
+
+    #         # Log the raw response data
+    #         logging.debug(f"Raw response data: {response_data}")
+
+    #         if res.status != 200:
+    #             print(f"Error: {res.status} {res.reason}")
+    #             print("Error details:", response_data)
+    #         else:
+    #             print(response_data)
+    #     except Exception as e:
+    #         print(f"An error occurred: {e}")
+    #         print("Detailed traceback:")
+    #         traceback.print_exc()
+
     def do_sync(self, url, json_file):
         with open(json_file, 'r') as ff:
             data = json.load(ff)
         payload = json.dumps(data)
         headers = {
            'Authorization': self.token_id,
-           'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
            'Content-Type': 'application/json',
            'Accept': '*/*',
            'Host': self.server,
