@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import requests
 import json
@@ -57,11 +59,77 @@ class API():
         token['ttl'] = data.get('ttl')
         return token
 
-    def do_add_platform(self, json_file):
+    def do_get(self, url):
+        payload = json.dumps({"cached": False})
+        headers = {
+           'Authorization': self.token_id,
+           'Accept': '*/*',
+           'Host': self.server,
+           'Connection': 'keep-alive',
+        }
+        response = requests.request("GET", url, headers=headers, data=payload)
+        print(response.text)
+
+    def do_post(self, url, json_file):
         with open(json_file, 'r') as ff:
             data = json.load(ff)
         payload = json.dumps(data)
+        headers = {
+           'Authorization': self.token_id,
+           'Content-Type': 'application/json',
+           'Accept': '*/*',
+           'Host': self.server,
+           'Connection': 'keep-alive',
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+
+    def do_patch(url, json_file):
+        with open(json_file, 'r') as ff:
+            data = json.load(ff)
+        payload = json.dumps(data)
+        headers = {
+           'Authorization': self.token_id,
+           'Accept': '*/*',
+           'Host': self.server,
+           'Connection': 'keep-alive',
+        }
+        response = requests.request("PATCH", url, headers=headers, data=payload)
+        print(response.text)
+
+    def do_delete(self, url):
+        headers = {
+           'Authorization': self.token_id,
+           'Accept': '*/*',
+           'Host': self.server,
+           'Connection': 'keep-alive',
+        }
+        response = requests.request("DELETE", url, headers=headers)
+        print(response.text)
+
+    def do_add_platform(self, json_file):
         url = f"http://{self.server}/api/v1/platforms"
+        with open(json_file, 'r') as ff:
+            data = json.load(ff)
+        payload = json.dumps(data)
+        headers = {
+           'Authorization': self.token_id,
+           'Accept': '*/*',
+           'Host': self.server,
+           'Connection': 'keep-alive',
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+
+    def do_update_platform(self, platform_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}"
+        self.do_patch(url, json_file)
+
+    def do_ping_platform(self, platform_id):
+        url = f"http://{self.server}/api/v1/platform/ping"
+        payload = {
+            "platform_id": platform_id
+        }
         headers = {
            'Authorization': self.token_id,
            'Accept': '*/*',
@@ -73,14 +141,7 @@ class API():
 
     def do_delete_platform(self, platform_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}"
-        headers = {
-           'Authorization': self.token_id,
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("DELETE", url, headers=headers)
-        print(response.text)
+        self.do_delete(url)
 
     def do_list_platforms(self):
         url = f"http://{self.server}/api/v1/platforms"
@@ -93,16 +154,7 @@ class API():
         response = requests.request("GET", url, headers=headers)
         print(response.text)
 
-    def do_get(self, url):
-        payload = json.dumps({"cached": False})
-        headers = {
-           'Authorization': self.token_id,
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("GET", url, headers=headers, data=payload)
-        print(response.text)
+
 
     def do_list_clouds(self, platform_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds"
@@ -128,8 +180,16 @@ class API():
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines"
         self.do_get(url)
 
+    def do_create_machine(self, platform_id, cloud_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines"
+        self.do_post(url, json_file)
+
     def do_get_machine(self, platform_id, cloud_id, machine_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
+        self.do_get(url)
+
+    def do_get_machine_console(self, platform_id, cloud_id, machine_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}/console"
         self.do_get(url)
 
     def do_list_volumes(self, platform_id, cloud_id):
@@ -150,108 +210,43 @@ class API():
 
     def do_machine_action(self, platform_id, cloud_id, machine_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
-        with open(json_file, 'r') as ff:
-            data = json.load(ff)
-        payload = json.dumps(data)
-        headers = {
-           'Authorization': self.token_id,
-           'Content-Type': 'application/json',
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.text)
+        self.do_post(url, json_file)
 
-    # def do_machine_action(self, platform_id, cloud_id, machine_id, json_file):
-    #     try:
-    #         import http.client
-    #         url = f"/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
-    #         # conn = http.client.HTTPSConnection(self.server)
-    #         conn = http.client.HTTPConnection(self.server)
-    #         with open(json_file, 'r') as ff:
-    #             data = json.load(ff)
-    #         payload = json.dumps(data)
-    #         headers = {
-    #            'Authorization': self.token_id,
-    #            'Content-Type': 'application/json',
-    #            'Accept': '*/*',
-    #            'Host': self.server,
-    #            'Connection': 'keep-alive',
-    #         }
-    #         conn.request("POST", url, payload, headers)
-    #         res = conn.getresponse()
-    #         # Log response details
-    #         logging.debug(f"Response status: {res.status}")
-    #         logging.debug(f"Response reason: {res.reason}")
-    #         logging.debug(f"Response headers: {res.getheaders()}")
-
-    #         # Read and decode the response body
-    #         response_data = res.read().decode("utf-8")
-
-    #         # Log the raw response data
-    #         logging.debug(f"Raw response data: {response_data}")
-
-    #         if res.status != 200:
-    #             print(f"Error: {res.status} {res.reason}")
-    #             print("Error details:", response_data)
-    #         else:
-    #             print(response_data)
-    #     except Exception as e:
-    #         print(f"An error occurred: {e}")
-    #         print("Detailed traceback:")
-    #         traceback.print_exc()
-
-    def do_sync(self, url, json_file):
-        with open(json_file, 'r') as ff:
-            data = json.load(ff)
-        payload = json.dumps(data)
-        headers = {
-           'Authorization': self.token_id,
-           'Content-Type': 'application/json',
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive',
-        }
-        response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.text)
+    def do_delete_machine(self, platform_id, cloud_id, machine_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
+        self.do_delete(url)
 
     def do_sync_volume_type(self, platform_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/volume_type/sync"
-        self.do_sync(url, json_file)
+        self.do_post(url, json_file)
 
     def do_sync_cloud(self, platform_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/cloud/sync"
-        self.do_sync(url, json_file)
+        self.do_post(url, json_file)
 
     def do_sync_cluster(self, platform_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/cluster/sync"
-        self.do_sync(url, json_file)
+        self.do_post(url, json_file)
 
     def do_sync_image(self, platform_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/image/sync"
-        self.do_sync(url, json_file)
-        
+        self.do_post(url, json_file)
+
     def do_sync_host(self, platform_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/host/sync"
-        self.do_sync(url, json_file)
-        
+        self.do_post(url, json_file)
+
     def do_sync_machine(self, platform_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/machine/sync"
-        self.do_sync(url, json_file)
-        
+        self.do_post(url, json_file)
+
     def do_sync_network(self, platform_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/network/sync"
-        self.do_sync(url, json_file)
-        
+        self.do_post(url, json_file)
+
     def do_sync_volume(self, platform_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/volume/sync"
-        self.do_sync(url, json_file)
-        
-
-
-
-
+        self.do_post(url, json_file)
 
 
 
@@ -264,6 +259,12 @@ def parse_argument():
 
     parser_add_platform = subparsers.add_parser('add-platform')
     parser_add_platform.add_argument('json_file')
+
+    parser_update_platform = subparsers.add_parser('update-platform')
+    parser_update_platform.add_argument('json_file')
+
+    parser_ping_platform = subparsers.add_parser('ping-platform')
+    parser_ping_platform.add_argument('platform_id')
 
     parser_delete_platform = subparsers.add_parser('delete-platform')
     parser_delete_platform.add_argument('platform_id')
@@ -285,6 +286,11 @@ def parse_argument():
     parser_get_machine.add_argument('platform_id')
     parser_get_machine.add_argument('cloud_id')
     parser_get_machine.add_argument('machine_id')
+
+    parser_delete_machine = subparsers.add_parser('delete-machine')
+    parser_delete_machine.add_argument('platform_id')
+    parser_delete_machine.add_argument('cloud_id')
+    parser_delete_machine.add_argument('machine_id')
 
     parser_list_volume_types = subparsers.add_parser('list-volume-types')
     parser_list_volume_types.add_argument('platform_id')
@@ -310,11 +316,11 @@ def parse_argument():
     parser_get_network.add_argument('cloud_id')
     parser_get_network.add_argument('network_id')
 
-    parser_get_network = subparsers.add_parser('machine-action')
-    parser_get_network.add_argument('platform_id')
-    parser_get_network.add_argument('cloud_id')
-    parser_get_network.add_argument('machine_id')
-    parser_get_network.add_argument('json_file')
+    parser_machine_action = subparsers.add_parser('machine-action')
+    parser_machine_action.add_argument('platform_id')
+    parser_machine_action.add_argument('cloud_id')
+    parser_machine_action.add_argument('machine_id')
+    parser_machine_action.add_argument('json_file')
 
     parser_sync_volume_type = subparsers.add_parser('sync-volume-type')
     parser_sync_volume_type.add_argument('platform_id')
@@ -354,17 +360,17 @@ def parse_argument():
 def run_command(args, method):
     if args.subcommand == 'list-platforms':
         return method()
-    elif args.subcommand == 'add-platform':
+    elif args.subcommand in ('add-platform','update-platform'):
         return method(args.json_file)
     else:
-        if args.subcommand in ('list-clouds', 'list-images', 'list-sizes', 'list-volume-types', 'list-pf-networks', 'delete-platform'):
+        if args.subcommand in ('list-clouds','list-images','list-sizes','list-volume-types','list-pf-networks','ping-platform','delete-platform'):
             return method(args.platform_id)
-        elif args.subcommand in ('sync-volume-type', 'sync-cloud', 'sync-cluster', 'sync-image', 'sync-host', 'sync-machine', 'sync-network', 'sync-volume'):
+        elif args.subcommand in ('sync-volume-type','sync-cloud','sync-cluster','sync-image','sync-host','sync-machine','sync-network','sync-volume'):
             return method(args.platform_id, args.json_file)
         else:
-            if args.subcommand in ('list-machines', 'list-volumes', 'list-networks'):
+            if args.subcommand in ('list-machines','list-volumes','list-networks'):
                 return method(args.platform_id, args.cloud_id)
-            elif args.subcommand == 'get-machine':
+            elif args.subcommand in ('get-machine', 'delete-machine'):
                 return method(args.platform_id, args.cloud_id, args.machine_id)
             elif args.subcommand == 'get-volume':
                 return method(args.platform_id, args.cloud_id, args.volume_id)
