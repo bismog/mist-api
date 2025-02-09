@@ -84,7 +84,7 @@ class API():
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
 
-    def do_patch(url, json_file):
+    def do_patch(self, url, json_file):
         with open(json_file, 'r') as ff:
             data = json.load(ff)
         payload = json.dumps(data)
@@ -121,8 +121,8 @@ class API():
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
 
-    def do_update_platform(self, platform_id, json_file):
-        url = f"http://{self.server}/api/v1/platforms/{platform_id}"
+    def do_update_platform(self, json_file):
+        url = f"http://{self.server}/api/v1/platforms"
         self.do_patch(url, json_file)
 
     def do_ping_platform(self, platform_id):
