@@ -43,7 +43,8 @@ class API():
     def get_token(self):
         url = f"http://{self.server}/api/v1/tokens"
         payload = json.dumps({
-           "email": "cloud@astute-tec.com"
+           "email": "cloud@astute-tec.com",
+           "ttl": 31536000
         })
         headers = {
            'Content-Type': 'application/json',
