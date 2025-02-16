@@ -15,7 +15,7 @@ class API():
         self.token_file = 'data/token.json'
         self.token = self.load_token()
         if not self.token or self.is_token_expired(self.token):
-            self.token = self.get_token()
+            self.token = self.create_token()
             self.save_token(self.token)
         self.token_id = self.token.get('id')
 
@@ -40,28 +40,9 @@ class API():
         with open(self.token_file, 'w') as file:
             json.dump({'token': token}, file)
 
-    def get_token(self):
-        url = f"http://{self.server}/api/v1/tokens"
-        payload = json.dumps({
-           "email": "cloud@astute-tec.com",
-           "ttl": 31536000
-        })
-        headers = {
-           'Content-Type': 'application/json',
-           'Accept': '*/*',
-           'Host': self.server,
-           'Connection': 'keep-alive'
-        }
-        response = requests.request("POST", url, headers=headers, data=payload)
-        data = json.loads(response.content)
-        token = {}
-        token['id'] = data.get('token')
-        token['created_at'] = data.get('created_at')
-        token['ttl'] = data.get('ttl')
-        return token
-
-    def do_get(self, url):
-        payload = json.dumps({"cached": False})
+    def do_get(self, url, payload=None):
+        if not payload:
+            payload = json.dumps({"cached": False})
         headers = {
            'Authorization': self.token_id,
            'Accept': '*/*',
@@ -107,6 +88,34 @@ class API():
         }
         response = requests.request("DELETE", url, headers=headers)
         print(response.text)
+
+
+    def create_token(self):
+        url = f"http://{self.server}/api/v1/tokens"
+        payload = json.dumps({
+           "email": "cloud@astute-tec.com"
+        })
+        headers = {
+           'Content-Type': 'application/json',
+           'Accept': '*/*',
+           'Host': self.server,
+           'Connection': 'keep-alive'
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        data = json.loads(response.content)
+        token = {}
+        token['id'] = data.get('token')
+        token['created_at'] = data.get('created_at')
+        token['ttl'] = data.get('ttl')
+        return token
+
+    def do_list_tokens(self):
+        url = f"http://{self.server}/api/v1/tokens"
+        payload = json.dumps(
+            {
+                "email":"cloud@astute-tec.com"
+            })
+        self.do_get(url, payload=payload)
 
     def do_add_platform(self, json_file):
         url = f"http://{self.server}/api/v1/platforms"
@@ -258,6 +267,8 @@ def parse_argument():
 
     parser_list_platforms = subparsers.add_parser('list-platforms')
 
+    parser_list_tokens = subparsers.add_parser('list-tokens')
+
     parser_add_platform = subparsers.add_parser('add-platform')
     parser_add_platform.add_argument('json_file')
 
@@ -359,7 +370,7 @@ def parse_argument():
     return args
 
 def run_command(args, method):
-    if args.subcommand == 'list-platforms':
+    if args.subcommand in ('list-platforms','list-tokens'):
         return method()
     elif args.subcommand in ('add-platform','update-platform'):
         return method(args.json_file)
