@@ -182,8 +182,24 @@ class API():
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/sizes"
         self.do_get(url)
 
+    def do_get_size(self, platform_id, size_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/sizes/{size_id}"
+        self.do_get(url)
+
+    def do_list_templates(self, platform_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/templates"
+        self.do_get(url)
+
+    def do_get_template(self, platform_id, template_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/templates/{template_id}"
+        self.do_get(url)
+
     def do_list_pf_networks(self, platform_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/networks"
+        self.do_get(url)
+
+    def do_list_clusters(self, platform_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clusters"
         self.do_get(url)
 
     def do_list_machines(self, platform_id, cloud_id):
@@ -192,6 +208,10 @@ class API():
 
     def do_create_machine(self, platform_id, cloud_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines"
+        self.do_post(url, json_file)
+
+    def do_create_machine_from_template(self, platform_id, cloud_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines-from-template"
         self.do_post(url, json_file)
 
     def do_get_machine(self, platform_id, cloud_id, machine_id):
@@ -258,6 +278,10 @@ class API():
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/volume/sync"
         self.do_post(url, json_file)
 
+    def do_sync_template(self, platform_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/template/sync"
+        self.do_post(url, json_file)
+
 
 
 def parse_argument():
@@ -290,9 +314,33 @@ def parse_argument():
     parser_list_sizes = subparsers.add_parser('list-sizes')
     parser_list_sizes.add_argument('platform_id')
 
+    parser_get_size = subparsers.add_parser('get-size')
+    parser_get_size.add_argument('platform_id')
+    parser_get_size.add_argument('size_id')
+
+    parser_list_templates = subparsers.add_parser('list-templates')
+    parser_list_templates.add_argument('platform_id')
+
+    parser_get_template = subparsers.add_parser('get-template')
+    parser_get_template.add_argument('platform_id')
+    parser_get_template.add_argument('template_id')
+
+    parser_list_clusters = subparsers.add_parser('list-clusters')
+    parser_list_clusters.add_argument('platform_id')
+
     parser_list_machines = subparsers.add_parser('list-machines')
     parser_list_machines.add_argument('platform_id')
     parser_list_machines.add_argument('cloud_id')
+
+    parser_create_machine = subparsers.add_parser('create-machine')
+    parser_create_machine.add_argument('platform_id')
+    parser_create_machine.add_argument('cloud_id')
+    parser_create_machine.add_argument('json_file')
+
+    parser_create_machine_from_templ = subparsers.add_parser('create-machine-from-template')
+    parser_create_machine_from_templ.add_argument('platform_id')
+    parser_create_machine_from_templ.add_argument('cloud_id')
+    parser_create_machine_from_templ.add_argument('json_file')
 
     parser_get_machine = subparsers.add_parser('get-machine')
     parser_get_machine.add_argument('platform_id')
@@ -366,6 +414,10 @@ def parse_argument():
     parser_sync_volume.add_argument('platform_id')
     parser_sync_volume.add_argument('json_file')
 
+    parser_sync_template = subparsers.add_parser('sync-template')
+    parser_sync_template.add_argument('platform_id')
+    parser_sync_template.add_argument('json_file')
+
     args = parser.parse_args()
     return args
 
@@ -375,13 +427,19 @@ def run_command(args, method):
     elif args.subcommand in ('add-platform','update-platform'):
         return method(args.json_file)
     else:
-        if args.subcommand in ('list-clouds','list-images','list-sizes','list-volume-types','list-pf-networks','ping-platform','delete-platform'):
+        if args.subcommand in ('list-clouds','list-images','list-sizes','list-templates','list-volume-types','list-pf-networks','ping-platform','delete-platform','list-clusters'):
             return method(args.platform_id)
-        elif args.subcommand in ('sync-volume-type','sync-cloud','sync-cluster','sync-image','sync-host','sync-machine','sync-network','sync-volume'):
+        elif args.subcommand in ('get-size'):
+            return method(args.platform_id, args.size_id)
+        elif args.subcommand in ('get-template'):
+            return method(args.platform_id, args.template_id)
+        elif args.subcommand in ('sync-volume-type','sync-cloud','sync-cluster','sync-image','sync-host','sync-machine','sync-network','sync-volume','sync-template'):
             return method(args.platform_id, args.json_file)
         else:
             if args.subcommand in ('list-machines','list-volumes','list-networks'):
                 return method(args.platform_id, args.cloud_id)
+            elif args.subcommand in ('create-machine','create-machine-from-template'):
+                return method(args.platform_id, args.cloud_id, args.json_file)
             elif args.subcommand in ('get-machine', 'delete-machine'):
                 return method(args.platform_id, args.cloud_id, args.machine_id)
             elif args.subcommand == 'get-volume':
