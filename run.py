@@ -246,6 +246,10 @@ class API():
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
         self.do_delete(url)
 
+    def do_list_security_groups(self, platform_id, cloud_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/security-groups"
+        self.do_get(url)
+
     def do_sync_volume_type(self, platform_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/volume_type/sync"
         self.do_post(url, json_file)
@@ -382,6 +386,10 @@ def parse_argument():
     parser_machine_action.add_argument('machine_id')
     parser_machine_action.add_argument('json_file')
 
+    parser_list_sgs = subparsers.add_parser('list-security-groups')
+    parser_list_sgs.add_argument('platform_id')
+    parser_list_sgs.add_argument('cloud_id')
+
     parser_sync_volume_type = subparsers.add_parser('sync-volume-type')
     parser_sync_volume_type.add_argument('platform_id')
     parser_sync_volume_type.add_argument('json_file')
@@ -436,7 +444,7 @@ def run_command(args, method):
         elif args.subcommand in ('sync-volume-type','sync-cloud','sync-cluster','sync-image','sync-host','sync-machine','sync-network','sync-volume','sync-template'):
             return method(args.platform_id, args.json_file)
         else:
-            if args.subcommand in ('list-machines','list-volumes','list-networks'):
+            if args.subcommand in ('list-machines','list-volumes','list-networks','list-security-groups'):
                 return method(args.platform_id, args.cloud_id)
             elif args.subcommand in ('create-machine','create-machine-from-template'):
                 return method(args.platform_id, args.cloud_id, args.json_file)
