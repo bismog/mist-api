@@ -202,6 +202,10 @@ class API():
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clusters"
         self.do_get(url)
 
+    def do_list_hosts(self, platform_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/hosts"
+        self.do_get(url)
+
     def do_list_machines(self, platform_id, cloud_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines"
         self.do_get(url)
@@ -244,6 +248,10 @@ class API():
 
     def do_delete_machine(self, platform_id, cloud_id, machine_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
+        self.do_delete(url)
+
+    def do_delete_template(self, platform_id, template_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/templates/{template_id}"
         self.do_delete(url)
 
     def do_list_security_groups(self, platform_id, cloud_id):
@@ -332,6 +340,9 @@ def parse_argument():
     parser_list_clusters = subparsers.add_parser('list-clusters')
     parser_list_clusters.add_argument('platform_id')
 
+    parser_list_hosts = subparsers.add_parser('list-hosts')
+    parser_list_hosts.add_argument('platform_id')
+
     parser_list_machines = subparsers.add_parser('list-machines')
     parser_list_machines.add_argument('platform_id')
     parser_list_machines.add_argument('cloud_id')
@@ -355,6 +366,10 @@ def parse_argument():
     parser_delete_machine.add_argument('platform_id')
     parser_delete_machine.add_argument('cloud_id')
     parser_delete_machine.add_argument('machine_id')
+
+    parser_delete_template = subparsers.add_parser('delete-template')
+    parser_delete_template.add_argument('platform_id')
+    parser_delete_template.add_argument('template_id')
 
     parser_list_volume_types = subparsers.add_parser('list-volume-types')
     parser_list_volume_types.add_argument('platform_id')
@@ -435,11 +450,11 @@ def run_command(args, method):
     elif args.subcommand in ('add-platform','update-platform'):
         return method(args.json_file)
     else:
-        if args.subcommand in ('list-clouds','list-images','list-sizes','list-templates','list-volume-types','list-pf-networks','ping-platform','delete-platform','list-clusters'):
+        if args.subcommand in ('list-clouds','list-images','list-sizes','list-templates','list-volume-types','list-pf-networks','ping-platform','delete-platform','list-clusters','list-hosts'):
             return method(args.platform_id)
         elif args.subcommand in ('get-size'):
             return method(args.platform_id, args.size_id)
-        elif args.subcommand in ('get-template'):
+        elif args.subcommand in ('get-template', 'delete-template'):
             return method(args.platform_id, args.template_id)
         elif args.subcommand in ('sync-volume-type','sync-cloud','sync-cluster','sync-image','sync-host','sync-machine','sync-network','sync-volume','sync-template'):
             return method(args.platform_id, args.json_file)
