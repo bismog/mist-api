@@ -294,9 +294,13 @@ class API():
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/machine/sync"
         self.do_post(url, json_file)
 
+    def do_sync_pf_network(self, platform_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/network/sync"
+        self.do_post(url)
+
     def do_sync_network(self, platform_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/network/sync"
-        self.do_post(url, json_file)
+        self.do_post(url, json_file=json_file)
 
     def do_sync_volume(self, platform_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/volume/sync"
@@ -463,6 +467,9 @@ def parse_argument():
     parser_sync_machine.add_argument('platform_id')
     parser_sync_machine.add_argument('json_file')
 
+    parser_sync_pf_network = subparsers.add_parser('sync-pf-network')
+    parser_sync_pf_network.add_argument('platform_id')
+
     parser_sync_network = subparsers.add_parser('sync-network')
     parser_sync_network.add_argument('platform_id')
     parser_sync_network.add_argument('json_file')
@@ -522,7 +529,7 @@ def run_command(args, method):
         elif args.subcommand in ('get-template', 'delete-template'):
             return method(args.platform_id, args.template_id)
         elif args.subcommand in ('sync-volume-type','sync-cloud','sync-cluster',
-            'sync-image','sync-template'):
+            'sync-pf-network','sync-image','sync-template'):
             return method(args.platform_id)
         elif args.subcommand in ('sync-host','sync-machine','sync-network','sync-volume',
             'poll-image','poll-template'):
