@@ -42,14 +42,22 @@ class API():
 
     def do_get(self, url, payload=None):
         if not payload:
-            payload = json.dumps({"cached": False})
+            payload = dict()
+
+        cached = os.getenv('CACHED')
+        if cached in ('TRUE', 'true', 'YES', 'yes', 'ON', 'on', 1):
+            payload['cached'] = True
+        else:
+            payload['cached'] = False
+        data = json.dumps(payload)
+
         headers = {
            'Authorization': self.token_id,
            'Accept': '*/*',
            'Host': self.server,
            'Connection': 'keep-alive',
         }
-        response = requests.request("GET", url, headers=headers, data=payload)
+        response = requests.request("GET", url, headers=headers, data=data)
         print(response.text)
 
     def do_post(self, url, json_file=None):
@@ -334,6 +342,7 @@ class API():
 def parse_argument():
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--server', action='store', dest='server')
+    parser.add_argument('-c', '--cached', action='store_true', help="Fetch data in cached mode(default:False)")
     subparsers = parser.add_subparsers(dest='subcommand', required=True)
 
     parser_list_platforms = subparsers.add_parser('list-platforms')
@@ -558,6 +567,9 @@ def run_command(args, method):
 def main():
     args = parse_argument()
     server = args.server or 'localhost'
+    if args.cached:
+        # either 'TRUE' or 'YES' or 1 is ok
+        os.environ['CACHED'] = 'TRUE'
     api = API(server=server)
     method_name = f"do_{args.subcommand.replace('-', '_')}"
     if hasattr(api, method_name):
