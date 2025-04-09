@@ -52,10 +52,14 @@ class API():
         response = requests.request("GET", url, headers=headers, data=payload)
         print(response.text)
 
-    def do_post(self, url, json_file):
-        with open(json_file, 'r') as ff:
-            data = json.load(ff)
-        payload = json.dumps(data)
+    def do_post(self, url, json_file=None):
+        if not json_file:
+            payload = {}
+        else:
+            with open(json_file, 'r') as ff:
+                data = json.load(ff)
+            payload = json.dumps(data)
+
         headers = {
            'Authorization': self.token_id,
            'Content-Type': 'application/json',
@@ -178,6 +182,10 @@ class API():
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/images"
         self.do_get(url)
 
+    def do_get_image(self, platform_id, image_id):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/images/{image_id}"
+        self.do_get(url)
+
     def do_list_sizes(self, platform_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/sizes"
         self.do_get(url)
@@ -246,6 +254,10 @@ class API():
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
         self.do_post(url, json_file)
 
+    def do_template_action(self, platform_id, template_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/templates/{template_id}/action"
+        self.do_post(url, json_file)
+
     def do_delete_machine(self, platform_id, cloud_id, machine_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines/{machine_id}"
         self.do_delete(url)
@@ -258,21 +270,21 @@ class API():
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/security-groups"
         self.do_get(url)
 
-    def do_sync_volume_type(self, platform_id, json_file):
+    def do_sync_volume_type(self, platform_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/volume_type/sync"
-        self.do_post(url, json_file)
+        self.do_post(url)
 
-    def do_sync_cloud(self, platform_id, json_file):
+    def do_sync_cloud(self, platform_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/cloud/sync"
-        self.do_post(url, json_file)
+        self.do_post(url)
 
-    def do_sync_cluster(self, platform_id, json_file):
+    def do_sync_cluster(self, platform_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/cluster/sync"
-        self.do_post(url, json_file)
+        self.do_post(url)
 
-    def do_sync_image(self, platform_id, json_file):
+    def do_sync_image(self, platform_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/image/sync"
-        self.do_post(url, json_file)
+        self.do_post(url)
 
     def do_sync_host(self, platform_id, json_file):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/host/sync"
@@ -290,10 +302,29 @@ class API():
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/volume/sync"
         self.do_post(url, json_file)
 
-    def do_sync_template(self, platform_id, json_file):
+    def do_sync_template(self, platform_id):
         url = f"http://{self.server}/api/v1/platforms/{platform_id}/template/sync"
+        self.do_post(url)
+
+    def do_poll_image(self, platform_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/image/update_poller"
         self.do_post(url, json_file)
 
+    def do_poll_template(self, platform_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/template/update_poller"
+        self.do_post(url, json_file)
+
+    def do_poll_host(self, platform_id, cluster_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clusters/{cluster_id}/update_poller"
+        self.do_post(url, json_file)
+
+    def do_poll_machine(self, platform_id, cloud_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/update_poller"
+        self.do_post(url, json_file)
+
+    def do_poll_volume(self, platform_id, cloud_id, json_file):
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/update_volume_poller"
+        self.do_post(url, json_file)
 
 
 def parse_argument():
@@ -329,6 +360,10 @@ def parse_argument():
     parser_get_size = subparsers.add_parser('get-size')
     parser_get_size.add_argument('platform_id')
     parser_get_size.add_argument('size_id')
+
+    parser_get_image = subparsers.add_parser('get-image')
+    parser_get_image.add_argument('platform_id')
+    parser_get_image.add_argument('image_id')
 
     parser_list_templates = subparsers.add_parser('list-templates')
     parser_list_templates.add_argument('platform_id')
@@ -407,19 +442,18 @@ def parse_argument():
 
     parser_sync_volume_type = subparsers.add_parser('sync-volume-type')
     parser_sync_volume_type.add_argument('platform_id')
-    parser_sync_volume_type.add_argument('json_file')
 
     parser_sync_cloud = subparsers.add_parser('sync-cloud')
     parser_sync_cloud.add_argument('platform_id')
-    parser_sync_cloud.add_argument('json_file')
 
     parser_sync_cluster = subparsers.add_parser('sync-cluster')
     parser_sync_cluster.add_argument('platform_id')
-    parser_sync_cluster.add_argument('json_file')
 
     parser_sync_image = subparsers.add_parser('sync-image')
     parser_sync_image.add_argument('platform_id')
-    parser_sync_image.add_argument('json_file')
+
+    parser_sync_size = subparsers.add_parser('sync-image')
+    parser_sync_size.add_argument('platform_id')
 
     parser_sync_host = subparsers.add_parser('sync-host')
     parser_sync_host.add_argument('platform_id')
@@ -439,7 +473,34 @@ def parse_argument():
 
     parser_sync_template = subparsers.add_parser('sync-template')
     parser_sync_template.add_argument('platform_id')
-    parser_sync_template.add_argument('json_file')
+
+    parser_poll_image = subparsers.add_parser('poll-image')
+    parser_poll_image.add_argument('platform_id')
+    parser_poll_image.add_argument('json_file')
+
+    parser_poll_template = subparsers.add_parser('poll-template')
+    parser_poll_template.add_argument('platform_id')
+    parser_poll_template.add_argument('json_file')
+
+    parser_poll_host = subparsers.add_parser('poll-host')
+    parser_poll_host.add_argument('platform_id')
+    parser_poll_host.add_argument('cluster_id')
+    parser_poll_host.add_argument('json_file')
+
+    parser_poll_machine = subparsers.add_parser('poll-machine')
+    parser_poll_machine.add_argument('platform_id')
+    parser_poll_machine.add_argument('cloud_id')
+    parser_poll_machine.add_argument('json_file')
+
+    parser_poll_volume = subparsers.add_parser('poll-volume')
+    parser_poll_volume.add_argument('platform_id')
+    parser_poll_volume.add_argument('cloud_id')
+    parser_poll_volume.add_argument('json_file')
+
+    parser_template_action = subparsers.add_parser('template-action')
+    parser_template_action.add_argument('platform_id') 
+    parser_template_action.add_argument('template_id') 
+    parser_template_action.add_argument('json_file') 
 
     args = parser.parse_args()
     return args
@@ -450,18 +511,30 @@ def run_command(args, method):
     elif args.subcommand in ('add-platform','update-platform'):
         return method(args.json_file)
     else:
-        if args.subcommand in ('list-clouds','list-images','list-sizes','list-templates','list-volume-types','list-pf-networks','ping-platform','delete-platform','list-clusters','list-hosts'):
+        if args.subcommand in ('list-clouds','list-images','list-sizes','list-templates',
+            'list-volume-types','list-pf-networks','ping-platform','delete-platform',
+            'list-clusters','list-hosts'):
             return method(args.platform_id)
         elif args.subcommand in ('get-size'):
             return method(args.platform_id, args.size_id)
+        elif args.subcommand in ('get-image'):
+            return method(args.platform_id, args.image_id)
         elif args.subcommand in ('get-template', 'delete-template'):
             return method(args.platform_id, args.template_id)
-        elif args.subcommand in ('sync-volume-type','sync-cloud','sync-cluster','sync-image','sync-host','sync-machine','sync-network','sync-volume','sync-template'):
+        elif args.subcommand in ('sync-volume-type','sync-cloud','sync-cluster',
+            'sync-image','sync-template'):
+            return method(args.platform_id)
+        elif args.subcommand in ('sync-host','sync-machine','sync-network','sync-volume',
+            'poll-image','poll-template'):
             return method(args.platform_id, args.json_file)
         else:
-            if args.subcommand in ('list-machines','list-volumes','list-networks','list-security-groups'):
+            if args.subcommand in ('list-machines','list-volumes','list-networks',
+                'list-security-groups'):
                 return method(args.platform_id, args.cloud_id)
-            elif args.subcommand in ('create-machine','create-machine-from-template'):
+            elif args.subcommand in ('poll-host'):
+                return method(args.platform_id, args.cluster_id, args.json_file)
+            elif args.subcommand in ('create-machine','create-machine-from-template',
+                'poll-machine','poll-volume'):
                 return method(args.platform_id, args.cloud_id, args.json_file)
             elif args.subcommand in ('get-machine', 'delete-machine'):
                 return method(args.platform_id, args.cloud_id, args.machine_id)
@@ -471,6 +544,8 @@ def run_command(args, method):
                 return method(args.platform_id, args.cloud_id, args.network_id)
             elif args.subcommand == 'machine-action':
                 return method(args.platform_id, args.cloud_id, args.machine_id, args.json_file)
+            elif args.subcommand == 'template-action':
+                return method(args.platform_id, args.template_id, args.json_file)
     return
 
 def main():
