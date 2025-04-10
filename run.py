@@ -5,9 +5,9 @@ import requests
 import json
 import os
 import datetime
-import logging
+# import logging
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 
 class API():
     def __init__(self, server=None):
@@ -18,6 +18,18 @@ class API():
             self.token = self.create_token()
             self.save_token(self.token)
         self.token_id = self.token.get('id')
+
+    def is_cached(self):
+        cached = os.getenv('CACHED')
+        if cached in ('TRUE', 'true', 'YES', 'yes', 'ON', 'on', 1):
+            return True
+        return False
+
+    def is_verbose(self):
+        cached = os.getenv('VERBOSE')
+        if cached in ('TRUE', 'true', 'YES', 'yes', 'ON', 'on', 1):
+            return True
+        return False
 
     def is_token_expired(self, token):
         created_at = token.get('created_at')
@@ -43,20 +55,18 @@ class API():
     def do_get(self, url, payload=None):
         if not payload:
             payload = dict()
-
-        cached = os.getenv('CACHED')
-        if cached in ('TRUE', 'true', 'YES', 'yes', 'ON', 'on', 1):
-            payload['cached'] = True
-        else:
-            payload['cached'] = False
+        payload['cached'] = True if self.is_cached() else False
         data = json.dumps(payload)
-
         headers = {
            'Authorization': self.token_id,
            'Accept': '*/*',
            'Host': self.server,
            'Connection': 'keep-alive',
         }
+        if self.is_verbose():
+            print(f"URL: {url}")
+            print(f"HEADERS: {headers}")
+            print(f"REQUEST BODY: {data}")
         response = requests.request("GET", url, headers=headers, data=data)
         print(response.text)
 
@@ -343,6 +353,7 @@ def parse_argument():
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--server', action='store', dest='server')
     parser.add_argument('-c', '--cached', action='store_true', help="Fetch data in cached mode(default:False)")
+    parser.add_argument('-v', '--verbose', action='store_true')
     subparsers = parser.add_subparsers(dest='subcommand', required=True)
 
     parser_list_platforms = subparsers.add_parser('list-platforms')
@@ -568,8 +579,9 @@ def main():
     args = parse_argument()
     server = args.server or 'localhost'
     if args.cached:
-        # either 'TRUE' or 'YES' or 1 is ok
         os.environ['CACHED'] = 'TRUE'
+    if args.verbose:
+        os.environ['VERBOSE'] = 'TRUE'
     api = API(server=server)
     method_name = f"do_{args.subcommand.replace('-', '_')}"
     if hasattr(api, method_name):
