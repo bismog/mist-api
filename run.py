@@ -255,7 +255,7 @@ class API():
         self.do_post(url, json_file)
 
     def do_create_machine_from_template(self, platform_id, cloud_id, json_file):
-        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines-from-template"
+        url = f"http://{self.server}/api/v1/platforms/{platform_id}/clouds/{cloud_id}/machines_from_template"
         self.do_post(url, json_file)
 
     def do_get_machine(self, platform_id, cloud_id, machine_id):
