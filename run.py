@@ -31,6 +31,12 @@ class API():
             return True
         return False
 
+    def print_request(self, url, headers, data=None):
+        if self.is_verbose():
+            print(f"URL: {url}")
+            print(f"HEADERS: {headers}")
+            print(f"REQUEST BODY: {data}")
+
     def is_token_expired(self, token):
         created_at = token.get('created_at')
         ttl = token.get('ttl')
@@ -63,12 +69,17 @@ class API():
            'Host': self.server,
            'Connection': 'keep-alive',
         }
-        if self.is_verbose():
-            print(f"URL: {url}")
-            print(f"HEADERS: {headers}")
-            print(f"REQUEST BODY: {data}")
+        self.print_request(url, headers, data)
         response = requests.request("GET", url, headers=headers, data=data)
-        print(response.text)
+        if self.is_verbose():
+            try:
+                pprint_data = json.loads(response.text)
+                from pprint import pprint
+                pprint(pprint_data)
+            except Exception:
+                print(response.text)
+        else:
+            print(response.text)
 
     def do_post(self, url, json_file=None):
         if not json_file:
@@ -85,6 +96,7 @@ class API():
            'Host': self.server,
            'Connection': 'keep-alive',
         }
+        self.print_request(url, headers, data)
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
 
@@ -98,6 +110,7 @@ class API():
            'Host': self.server,
            'Connection': 'keep-alive',
         }
+        self.print_request(url, headers, data)
         response = requests.request("PATCH", url, headers=headers, data=payload)
         print(response.text)
 
@@ -108,6 +121,7 @@ class API():
            'Host': self.server,
            'Connection': 'keep-alive',
         }
+        self.print_request(url, headers)
         response = requests.request("DELETE", url, headers=headers)
         print(response.text)
 
