@@ -83,11 +83,11 @@ class API():
 
     def do_post(self, url, json_file=None):
         if not json_file:
-            payload = {}
+            data = {}
         else:
             with open(json_file, 'r') as ff:
-                data = json.load(ff)
-            payload = json.dumps(data)
+                payload = json.load(ff)
+            data = json.dumps(payload)
 
         headers = {
            'Authorization': self.token_id,
@@ -97,13 +97,13 @@ class API():
            'Connection': 'keep-alive',
         }
         self.print_request(url, headers, data)
-        response = requests.request("POST", url, headers=headers, data=payload)
+        response = requests.request("POST", url, headers=headers, data=data)
         print(response.text)
 
     def do_patch(self, url, json_file):
         with open(json_file, 'r') as ff:
-            data = json.load(ff)
-        payload = json.dumps(data)
+            payload = json.load(ff)
+        data = json.dumps(payload)
         headers = {
            'Authorization': self.token_id,
            'Accept': '*/*',
@@ -111,7 +111,7 @@ class API():
            'Connection': 'keep-alive',
         }
         self.print_request(url, headers, data)
-        response = requests.request("PATCH", url, headers=headers, data=payload)
+        response = requests.request("PATCH", url, headers=headers, data=data)
         print(response.text)
 
     def do_delete(self, url):
