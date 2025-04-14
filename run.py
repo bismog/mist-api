@@ -435,6 +435,11 @@ def parse_argument():
     parser_get_machine.add_argument('cloud_id')
     parser_get_machine.add_argument('machine_id')
 
+    parser_get_machine_console = subparsers.add_parser('get-machine-console')
+    parser_get_machine_console.add_argument('platform_id')
+    parser_get_machine_console.add_argument('cloud_id')
+    parser_get_machine_console.add_argument('machine_id')
+
     parser_delete_machine = subparsers.add_parser('delete-machine')
     parser_delete_machine.add_argument('platform_id')
     parser_delete_machine.add_argument('cloud_id')
@@ -577,7 +582,7 @@ def run_command(args, method):
             elif args.subcommand in ('create-machine','create-machine-from-template',
                 'poll-machine','poll-volume'):
                 return method(args.platform_id, args.cloud_id, args.json_file)
-            elif args.subcommand in ('get-machine', 'delete-machine'):
+            elif args.subcommand in ('get-machine', 'delete-machine', 'get-machine-console'):
                 return method(args.platform_id, args.cloud_id, args.machine_id)
             elif args.subcommand == 'get-volume':
                 return method(args.platform_id, args.cloud_id, args.volume_id)
